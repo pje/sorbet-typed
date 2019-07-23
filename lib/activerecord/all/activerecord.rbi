@@ -733,7 +733,13 @@ module ActiveRecord::Persistence::ClassMethods
   end
   def insert(attributes, returning: nil, unique_by: nil); end
 
-  sig { params(attributes: T.untyped, column_types: T::Hash[T.untyped, T.untyped], blk: T.proc.void).returns(T.untyped) }
+  sig do
+    params(
+      attributes: T.untyped,
+      column_types: T::Hash[T.untyped, T.untyped],
+      blk: T.proc.void
+    ).returns(T.untyped)
+  end
   def instantiate(attributes, column_types = {}, &blk); end
 
   sig do
@@ -873,27 +879,32 @@ end
 class ActiveRecord::Migration::Current < ActiveRecord::Migration
   # Tables
 
+  # https://github.com/rails/rails/blob/v5.2.3/activerecord/lib/active_record/connection_adapters/abstract/schema_statements.rb#L151-L290
   sig do
     params(
       table_name: T.any(String, Symbol),
       comment: T.untyped,
-      id: T.untyped,
-      primary_key: T.untyped,
+      id: T.any(T::Boolean, Symbol),
+      primary_key: T.any(String, Symbol, T::Array[T.any(String, Symbol)]),
       options: T.untyped,
-      temporary: T.untyped,
-      force: T.untyped,
-      as: T.untyped
+      temporary: T::Boolean,
+      force: T.any(T::Boolean, Symbol),
+      as: T.untyped,
+      if_not_exists: T::Boolean,
+      blk: T.nilable(T.proc.params(t: ActiveRecord::ConnectionAdapters::TableDefinition).void)
     ).returns(T.untyped)
   end
   def create_table(
     table_name,
     comment: nil,
-    id: nil,
+    id: :primary_key,
     primary_key: nil,
     options: nil,
     temporary: nil,
     force: nil,
-    as: nil
+    as: nil,
+    if_not_exists: nil,
+    &blk
   ); end
 
   sig do
